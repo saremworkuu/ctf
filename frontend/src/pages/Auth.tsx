@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Shield, Mail, Lock, User, Key, AlertCircle, CheckCircle } from 'lucide-react';
+import { Shield, Mail, Lock, User, Key, AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -19,6 +19,8 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [hint, setHint] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   function resetForm() {
     setUsername('');
@@ -27,6 +29,8 @@ export default function Auth() {
     setArchiveSignature('');
     setError('');
     setSuccess('');
+    setHint('');
+    setShowPassword(false);
   }
 
   function switchMode() {
@@ -38,17 +42,17 @@ export default function Auth() {
     e.preventDefault();
     setError('');
     setSuccess('');
+    setHint('');
     setLoading(true);
 
     try {
       if (isLogin) {
-        const data = await login(username, password);
-        setSuccess(`Welcome back, ${data.username}!`);
-        setTimeout(() => navigate('/gallery'), 800);
+        await login(username, password);
+        navigate('/gallery');
       } else {
-        const data = await register(username, email, password, archiveSignature);
-        setSuccess(`Identity initialized! Welcome, ${data.username}.`);
-        setTimeout(() => navigate('/gallery'), 800);
+        await register(username, email, password, archiveSignature);
+        setSuccess('Identity initialized!');
+        setTimeout(() => navigate('/gallery'), 500);
       }
     } catch (err: any) {
       setError(err.message || 'Something went wrong. Please try again.');
@@ -118,7 +122,18 @@ export default function Auth() {
               <p className="text-xs text-green-600 font-medium">{success}</p>
             </motion.div>
           )}
-
+          {hint && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-4 bg-bayc-gold/10 border border-bayc-gold/30 rounded-lg space-y-1"
+            >
+              <p className="text-[9px] font-bold uppercase tracking-widest text-bayc-gold">
+                🔍 Archive Hint
+              </p>
+              <p className="text-xs font-mono text-bayc-text/70">{hint}</p>
+            </motion.div>
+          )}
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="space-y-6">
@@ -157,13 +172,24 @@ export default function Auth() {
                 <Lock className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 text-bayc-text/30 group-focus-within:text-bayc-gold transition-colors" />
                 <input
                   id="auth-password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full bg-transparent py-4 pl-8 pr-4 text-bayc-text text-sm outline-none placeholder:text-bayc-text/20 font-mono"
+                  className="w-full bg-transparent py-4 pl-8 pr-12 text-bayc-text text-sm outline-none placeholder:text-bayc-text/20 font-mono"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 p-2 text-bayc-text/30 hover:text-bayc-gold transition-colors"
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
+                </button>
               </div>
 
               {/* Archive Signature — register only */}

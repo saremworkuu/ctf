@@ -56,9 +56,15 @@ export default function Navbar() {
           {/* Username or user icon */}
           {isAuthenticated && user ? (
             <div className="flex items-center space-x-4">
-              <span className="text-[10px] font-bold tracking-widest uppercase text-bayc-text/60 hidden md:block">
+              <Link
+                to="/profile"
+                className={cn(
+                  'text-[10px] font-bold tracking-widest uppercase transition-colors hidden md:block',
+                  isActive('/profile') ? 'text-bayc-gold' : 'text-bayc-text/60 hover:text-bayc-gold'
+                )}
+              >
                 @{user.username}
-              </span>
+              </Link>
               <button
                 onClick={handleLogout}
                 title="Logout"

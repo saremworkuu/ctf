@@ -8,6 +8,7 @@ import Auth from './pages/Auth';
 import Shop from './pages/Shop';
 import About from './pages/About';
 import Cart from './pages/Cart';
+import Profile from './pages/Profile';
 import { AuthProvider } from './contexts/AuthContext';
 
 function ScrollToTop() {
@@ -36,6 +37,7 @@ export default function App() {
                 <Route path="/nft/:id" element={<NFTDetail />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/cart" element={<Cart />} />
+                <Route path="/profile" element={<Profile />} />
               </Routes>
             </AnimatePresence>
           </main>

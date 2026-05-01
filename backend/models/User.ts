@@ -16,7 +16,7 @@ const UserSchema = new Schema<IUser>({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   role: { type: String, enum: ['admin', 'user'], default: 'user' },
-  archiveSignature: { type: String, required: true },
+  archiveSignature: { type: String },
   createdAt: { type: Date, default: Date.now }
 });
 

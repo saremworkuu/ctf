@@ -6,9 +6,9 @@ import { ChevronDown, Search, ChevronLeft, ChevronRight, Loader2, AlertCircle } 
 import { ApiNFT } from '../types';
 import { apiGetNFTs } from '../services/api';
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 8;
 
-const CATEGORIES = ['All', 'Art', 'Collectible', 'Gaming', 'Music', 'Photography'];
+const CATEGORIES = ['All', 'Legendary', 'Rare', 'Epic', 'Uncommon', 'Common'];
 
 export default function Shop() {
   const navigate = useNavigate();
@@ -39,12 +39,17 @@ export default function Shop() {
   const [category, setCategory] = useState('All');
   const [sort, setSort] = useState('Newest First');
 
+  const normalizedSearch = searchQuery.trim().toLowerCase();
+  const normalizedCategory = category.trim().toLowerCase();
+
   let filtered = allNFTs.filter((nft) =>
-    nft.name.toLowerCase().includes(searchQuery.toLowerCase())
+    nft.name.toLowerCase().includes(normalizedSearch)
   );
 
-  if (category !== 'All') {
-    filtered = filtered.filter((nft) => nft.category === category);
+  if (normalizedCategory !== 'all') {
+    filtered = filtered.filter((nft) => 
+      nft.category && nft.category.toLowerCase() === normalizedCategory
+    );
   }
 
   if (sort === 'Price: Low to High') {
@@ -64,6 +69,11 @@ export default function Shop() {
 
   // Reset to page 1 when filter changes
   useEffect(() => { setCurrentPage(1); }, [searchQuery, category, sort]);
+
+  // Scroll to top when page changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentPage]);
 
   // ── Render ───────────────────────────────────────────────────────────────────
   return (

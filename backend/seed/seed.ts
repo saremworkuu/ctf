@@ -39,12 +39,21 @@ const seedData = async () => {
 
     // Seed NFTs
     const nfts = [
-      { nftId: 1, name: 'Bored Ape #001', price: '99 ETH', image: 'https://gateway.pinata.cloud/ipfs/QmeSjSinHpRuzXGO9MRsybtXPqbDxrzBut4WvTvWB18W6r', description: 'The crown jewel of the collection.', category: 'Legendary' },
-      { nftId: 2, name: 'Bored Ape #723', price: '2 ETH', image: 'https://gateway.pinata.cloud/ipfs/QmZDeitxX4DnoE89V1rS4m1K9Y637idJvGvyL9hK9wJv6a', description: 'A classic ape with great potential.', category: 'Rare' },
-      { nftId: 3, name: 'Bored Ape #445', price: '1.5 ETH', image: 'https://gateway.pinata.cloud/ipfs/QmYf6unKrvzGZsh6XoYzW8eW1yY8Y5L9iXZP7M7Y6XoYzW', description: 'Looking for a new home.', category: 'Common' },
-      { nftId: 4, name: 'Bored Ape #999', price: '50 ETH', image: 'https://gateway.pinata.cloud/ipfs/QmSuXZP7M7Y6XoYzW8eW1yY8Y5L9iXZP7M7Y6XoYzW', description: 'A digital masterpiece.', category: 'Epic' },
-      { nftId: 5, name: 'Bored Ape #312', price: '5 ETH', image: 'https://gateway.pinata.cloud/ipfs/QmRsybtXPqbDxrzBut4WvTvWB18W6rQmeSjSinHpRuzXGO', description: 'Simple yet elegant.', category: 'Uncommon' },
-      { nftId: 6, name: 'Bored Ape #187', price: '10 ETH', image: 'https://gateway.pinata.cloud/ipfs/QmW8eW1yY8Y5L9iXZP7M7Y6XoYzWQmYf6unKrvzGZsh6Xo', description: 'A bold statement.', category: 'Rare' },
+      { nftId: 1, name: 'Bored Ape #001', price: '99 ETH', image: '/image/photo_2026-05-01_01-41-25.jpg', description: 'The crown jewel of the collection.', category: 'Legendary' },
+      { nftId: 2, name: 'Bored Ape #723', price: '2 ETH', image: '/image/photo_2026-05-01_01-41-40.jpg', description: 'A classic ape with great potential.', category: 'Rare' },
+      { nftId: 3, name: 'Bored Ape #445', price: '1.5 ETH', image: '/image/photo_2026-05-01_01-41-45.jpg', description: 'Looking for a new home.', category: 'Common' },
+      { nftId: 4, name: 'Bored Ape #999', price: '50 ETH', image: '/image/photo_2026-05-01_01-41-51.jpg', description: 'A digital masterpiece.', category: 'Epic' },
+      { nftId: 5, name: 'Bored Ape #312', price: '5 ETH', image: '/image/photo_2026-05-01_01-41-57.jpg', description: 'Simple yet elegant.', category: 'Uncommon' },
+      { nftId: 6, name: 'Bored Ape #187', price: '10 ETH', image: '/image/photo_2026-05-01_01-42-03.jpg', description: 'A bold statement.', category: 'Rare' },
+      { nftId: 7, name: 'Bored Ape #552', price: '3.5 ETH', image: '/image/photo_2026-05-01_01-42-10.jpg', description: 'Vibrant and energetic.', category: 'Uncommon' },
+      { nftId: 8, name: 'Bored Ape #661', price: '12 ETH', image: '/image/photo_2026-05-01_01-42-15.jpg', description: 'A rare find in the digital wilderness.', category: 'Rare' },
+      { nftId: 9, name: 'Bored Ape #228', price: '0.8 ETH', image: '/image/photo_2026-05-01_01-42-21.jpg', description: 'Great for first-time collectors.', category: 'Common' },
+      { nftId: 10, name: 'Bored Ape #883', price: '25 ETH', image: '/image/photo_2026-05-01_01-42-28.jpg', description: 'An absolute masterpiece of digital art.', category: 'Epic' },
+      { nftId: 11, name: 'Bored Ape #112', price: '7.2 ETH', image: '/image/photo_2026-05-01_01-42-33.jpg', description: 'Elegant and sophisticated.', category: 'Rare' },
+      { nftId: 12, name: 'Bored Ape #334', price: '15 ETH', image: '/image/2aa17bb0491e72c20a3742e1ef43ff8c.jpg', description: 'The neon explorer.', category: 'Legendary' },
+      { nftId: 13, name: 'Bored Ape #449', price: '4.2 ETH', image: '/image/611f9a591fafdd003c48900859d8abeb.jpg', description: 'Deep in the jungle.', category: 'Uncommon' },
+      { nftId: 14, name: 'Bored Ape #771', price: '30 ETH', image: '/image/8fbeeee7371be77e365c6ae72fccdd2f.jpg', description: 'Golden hour special.', category: 'Epic' },
+      { nftId: 15, name: 'Bored Ape #505', price: '2.8 ETH', image: '/image/ae0ee41faa473bec4f214bc626fdd8c5.jpg', description: 'Quietly confident.', category: 'Rare' },
     ];
 
     await NFT.insertMany(nfts);
