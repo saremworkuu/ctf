@@ -1,0 +1,232 @@
+import { NFT } from "./types";
+
+export const FEATURED_NFTS: NFT[] = [
+  {
+    id: "v1-001",
+    name: "Cyber APE #001",
+    description: "The first sentinel of the digital vault. A fusion of biological essence and cybernetic enhancements.",
+    image: "/image/photo_2026-05-01_01-42-15.jpg",
+    price: "12.5 ETH",
+    rarity: "Legendary",
+    owner: "0x71...3f2",
+    collection: "Sentinels of Void",
+    metadata: {
+      dna: "7a2b91c8...",
+      edition: 1,
+      date: 1714361534000,
+      attributes: [
+        { trait_type: "Background", value: "Cyber Blue" },
+        { trait_type: "Eyes", value: "Neon Visor" },
+        { trait_type: "Fur", value: "Silver" },
+      ],
+    },
+  },
+  {
+    id: "v1-002",
+    name: "Glitch Monarch",
+    description: "A sovereign entity existing within the gaps of the blockchain's reality.",
+    image: "/image/photo_2026-05-01_01-42-21.jpg",
+    price: "8.2 ETH",
+    rarity: "Epic",
+    owner: "vault_keeper",
+    collection: "Glitch Realities",
+    metadata: {
+      dna: "3f1d4a9c...",
+      edition: 12,
+      date: 1714361534000,
+      attributes: [
+        { trait_type: "Background", value: "Static Purple" },
+        { trait_type: "Head", value: "Crown of Code" },
+        { trait_type: "Body", value: "Phase Shift" },
+      ],
+    },
+  },
+  {
+    id: "v1-003",
+    name: "Neon Samurai #42",
+    description: "Disciplined in the arts of decentralized combat and cryptographic stealth.",
+    image: "/image/photo_2026-05-01_01-42-28.jpg",
+    price: "4.5 ETH",
+    rarity: "Rare",
+    owner: "ronin_dev",
+    collection: "Neo-Edo",
+    metadata: {
+      dna: "8b5e2f1a...",
+      edition: 42,
+      date: 1714361534000,
+      attributes: [
+        { trait_type: "Background", value: "Crimson Night" },
+        { trait_type: "Weapon", value: "Plasma Katana" },
+        { trait_type: "Armor", value: "Carbon Fiber" },
+      ],
+    },
+  },
+  {
+    id: "v1-004",
+    name: "Void Drifter",
+    description: "A nomad traveling through the unmapped sectors of the metaverse.",
+    image: "/image/photo_2026-05-01_01-42-33.jpg",
+    price: "2.1 ETH",
+    rarity: "Common",
+    owner: "unknown_entity",
+    collection: "Sentinels of Void",
+    metadata: {
+      dna: "1a9c3f2d...",
+      edition: 156,
+      date: 1714361534000,
+      attributes: [
+        { trait_type: "Background", value: "Deep Space" },
+        { trait_type: "Vehicle", value: "Ion Bike" },
+        { trait_type: "Helmet", value: "Vacuum Proof" },
+      ],
+    },
+  },
+];
+
+// Separate NFTs for Featured Masterpieces section
+export const FEATURED_MASTERPIECES: NFT[] = [
+  {
+    id: "fm-001",
+    name: "Cosmic Voyager",
+    description: "A journey through the infinite cosmos of digital possibilities.",
+    image: "/image/photo_2026-05-01_01-41-25.jpg",
+    price: "15.0 ETH",
+    rarity: "Legendary",
+    owner: "0x42...7a8",
+    collection: "Cosmic Collection",
+    metadata: {
+      dna: "9f2c8a1d...",
+      edition: 1,
+      date: 1714361534000,
+      attributes: [
+        { trait_type: "Background", value: "Nebula" },
+        { trait_type: "Element", value: "Starlight" },
+        { trait_type: "Power", value: "Infinite" },
+      ],
+    },
+  },
+  {
+    id: "fm-002", 
+    name: "Digital Phoenix",
+    description: "Rising from the ashes of the old world into the new digital era.",
+    image: "/image/photo_2026-05-01_01-41-40.jpg",
+    price: "9.8 ETH",
+    rarity: "Epic",
+    owner: "phoenix_hunter",
+    collection: "Mythical Digital",
+    metadata: {
+      dna: "4a7e3b9c...",
+      edition: 7,
+      date: 1714361534000,
+      attributes: [
+        { trait_type: "Background", value: "Flame" },
+        { trait_type: "Wings", value: "Digital Fire" },
+        { trait_type: "Aura", value: "Golden" },
+      ],
+    },
+  },
+  {
+    id: "fm-003",
+    name: "Neon Dreams",
+    description: "Where reality meets the vibrant world of neon imagination.",
+    image: "/image/photo_2026-05-01_01-41-45.jpg",
+    price: "6.5 ETH",
+    rarity: "Rare",
+    owner: "dream_catcher",
+    collection: "Neon Nights",
+    metadata: {
+      dna: "8c1d5f2a...",
+      edition: 23,
+      date: 1714361534000,
+      attributes: [
+        { trait_type: "Background", value: "Electric Blue" },
+        { trait_type: "Glow", value: "Neon Pink" },
+        { trait_type: "Pattern", value: "Cyber Grid" },
+      ],
+    },
+  },
+];
+
+// Separate NFTs for Exclusive Deals section  
+export const EXCLUSIVE_DEALS: NFT[] = [
+  {
+    id: "ed-001",
+    name: "Shadow Walker",
+    description: "Moving through the digital shadows with unmatched stealth.",
+    image: "/image/photo_2026-05-01_01-41-51.jpg",
+    price: "4.2 ETH",
+    rarity: "Rare",
+    owner: "shadow_master",
+    collection: "Dark Arts",
+    metadata: {
+      dna: "3e8f2a1c...",
+      edition: 15,
+      date: 1714361534000,
+      attributes: [
+        { trait_type: "Background", value: "Dark Matter" },
+        { trait_type: "Cloak", value: "Void" },
+        { trait_type: "Eyes", value: "Red Glow" },
+      ],
+    },
+  },
+  {
+    id: "ed-002",
+    name: "Crystal Guardian",
+    description: "Protector of the digital crystal realms.",
+    image: "/image/photo_2026-05-01_01-41-57.jpg",
+    price: "7.8 ETH",
+    rarity: "Epic",
+    owner: "crystal_keeper",
+    collection: "Elemental Guardians",
+    metadata: {
+      dna: "7b4a9e2d...",
+      edition: 9,
+      date: 1714361534000,
+      attributes: [
+        { trait_type: "Background", value: "Crystal Cave" },
+        { trait_type: "Armor", value: "Crystal" },
+        { trait_type: "Power", value: "Reflection" },
+      ],
+    },
+  },
+  {
+    id: "ed-003",
+    name: "Time Bender",
+    description: "Manipulating time in the digital dimension.",
+    image: "/image/photo_2026-05-01_01-42-03.jpg",
+    price: "11.3 ETH",
+    rarity: "Legendary",
+    owner: "time_lord",
+    collection: "Temporal Masters",
+    metadata: {
+      dna: "5c9d3f1a...",
+      edition: 3,
+      date: 1714361534000,
+      attributes: [
+        { trait_type: "Background", value: "Time Vortex" },
+        { trait_type: "Hands", value: "Chrono" },
+        { trait_type: "Effect", value: "Time Warp" },
+      ],
+    },
+  },
+  {
+    id: "ed-004",
+    name: "Data Stream",
+    description: "Flowing through the rivers of pure data.",
+    image: "/image/photo_2026-05-01_01-42-10.jpg",
+    price: "3.6 ETH",
+    rarity: "Common",
+    owner: "data_miner",
+    collection: "Digital Flows",
+    metadata: {
+      dna: "2a6e8b3c...",
+      edition: 42,
+      date: 1714361534000,
+      attributes: [
+        { trait_type: "Background", value: "Binary" },
+        { trait_type: "Flow", value: "Data River" },
+        { trait_type: "Color", value: "Electric Blue" },
+      ],
+    },
+  },
+];

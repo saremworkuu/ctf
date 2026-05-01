@@ -1,0 +1,6 @@
+{
+  "name": "Authenticated Archive Protocol",
+  "description": "A Bored Ape NFT Marketplace CTF challenge. Find the flag hidden behind an IDOR vulnerability.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

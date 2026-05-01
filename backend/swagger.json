@@ -1,0 +1,940 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Authenticated Archive Protocol API",
+    "description": "A comprehensive API for managing NFT marketplace with user authentication, shopping cart, and order management.\n\n## Security Notes\nThis API contains intentional IDOR (Insecure Direct Object Reference) vulnerabilities for educational purposes:\n- `GET /api/orders/{id}` - Can access any user's orders\n- `GET /api/users/{id}` - Can access any user's profile\n\n## Authentication\nMost endpoints require JWT authentication. Include the token in the Authorization header:\n`Authorization: Bearer <jwt_token>`",
+    "version": "1.0.0",
+    "contact": {
+      "name": "API Support",
+      "email": "support@example.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000/api",
+      "description": "Development server"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Check server status and database connection",
+        "description": "Returns server status, database connection status, and setup requirements",
+        "operationId": "healthCheck",
+        "responses": {
+          "200": {
+            "description": "Server status information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                },
+                "example": {
+                  "status": "Authenticated_Archive_Protocol v1.0",
+                  "db": "connected",
+                  "setup_required": false,
+                  "message": "System operational."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Basic server status",
+        "description": "Returns basic server information",
+        "operationId": "basicStatus",
+        "responses": {
+          "200": {
+            "description": "Basic server status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BasicStatus"
+                },
+                "example": {
+                  "status": "Authenticated_Archive_Protocol v1.0"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/register": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Register a new user",
+        "description": "Create a new user account with username, email, and password",
+        "operationId": "registerUser",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterRequest"
+              },
+              "example": {
+                "username": "john_doe",
+                "email": "john@example.com",
+                "password": "securePassword123",
+                "archiveSignature": "user_signature_123"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                },
+                "example": {
+                  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                  "userId": 100,
+                  "username": "john_doe",
+                  "role": "user"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Login with existing credentials",
+        "description": "Authenticate user and return JWT token",
+        "operationId": "loginUser",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              },
+              "example": {
+                "username": "john_doe",
+                "password": "securePassword123"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                },
+                "example": {
+                  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                  "userId": 100,
+                  "username": "john_doe",
+                  "role": "user",
+                  "hint": "Access your orders at /api/orders/{id}. Try looking for high-value transactions."
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/nfts": {
+      "get": {
+        "tags": ["NFTs"],
+        "summary": "Get all available NFTs",
+        "description": "Retrieve a list of all available NFTs in the marketplace",
+        "operationId": "getAllNFTs",
+        "responses": {
+          "200": {
+            "description": "List of NFTs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NFT"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/nfts/{id}": {
+      "get": {
+        "tags": ["NFTs"],
+        "summary": "Get a specific NFT by ID",
+        "description": "Retrieve detailed information about a specific NFT",
+        "operationId": "getNFTById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "NFT ID",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "NFT details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NFT"
+                }
+              }
+            }
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/cart": {
+      "get": {
+        "tags": ["Cart"],
+        "summary": "Get current user's cart",
+        "description": "Retrieve the authenticated user's shopping cart with enriched NFT data",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "operationId": "getCart",
+        "responses": {
+          "200": {
+            "description": "User's cart items",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CartItemWithNFT"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Cart"],
+        "summary": "Add an NFT to cart",
+        "description": "Add an NFT to the user's cart or increase quantity if already present",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "operationId": "addToCart",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddToCartRequest"
+              },
+              "example": {
+                "nftId": 1
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Item added to cart",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CartItem"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/cart/{nftId}": {
+      "delete": {
+        "tags": ["Cart"],
+        "summary": "Remove an NFT from cart",
+        "description": "Remove a specific NFT from the user's cart",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "operationId": "removeFromCart",
+        "parameters": [
+          {
+            "name": "nftId",
+            "in": "path",
+            "required": true,
+            "description": "NFT ID to remove from cart",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Item removed from cart",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageResponse"
+                },
+                "example": {
+                  "message": "Item removed from cart"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/orders": {
+      "post": {
+        "tags": ["Orders"],
+        "summary": "Create orders from cart items",
+        "description": "Process all items in the cart and create individual orders",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "operationId": "createOrders",
+        "responses": {
+          "201": {
+            "description": "Orders created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateOrderResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "429": {
+            "$ref": "#/components/responses/TooManyRequests"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/orders/{id}": {
+      "get": {
+        "tags": ["Orders"],
+        "summary": "Get order by ID",
+        "description": "Retrieve order details. ⚠️ **IDOR VULNERABLE** - Can access any user's orders",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "operationId": "getOrderById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "Order ID",
+            "schema": {
+              "type": "integer",
+              "example": 2000
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Order details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Order"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get user profile by ID",
+        "description": "Retrieve user profile information. ⚠️ **IDOR VULNERABLE** - Can access any user's profile",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "operationId": "getUserById",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "description": "User ID",
+            "schema": {
+              "type": "integer",
+              "example": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    },
+    "/users/me": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get current user's profile",
+        "description": "Retrieve the authenticated user's profile information",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "operationId": "getCurrentUser",
+        "responses": {
+          "200": {
+            "description": "Current user profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "500": {
+            "$ref": "#/components/responses/ServerError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "description": "Unique user identifier",
+            "example": 100
+          },
+          "username": {
+            "type": "string",
+            "description": "User's username",
+            "example": "john_doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "User's email address",
+            "example": "john@example.com"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["admin", "user"],
+            "description": "User's role",
+            "example": "user"
+          },
+          "archiveSignature": {
+            "type": "string",
+            "description": "User's archive signature",
+            "example": "user_signature_123"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Account creation date",
+            "example": "2024-01-01T00:00:00.000Z"
+          }
+        }
+      },
+      "NFT": {
+        "type": "object",
+        "properties": {
+          "nftId": {
+            "type": "integer",
+            "description": "Unique NFT identifier",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "description": "NFT name",
+            "example": "Digital Art #1"
+          },
+          "price": {
+            "type": "string",
+            "description": "NFT price",
+            "example": "0.5 ETH"
+          },
+          "image": {
+            "type": "string",
+            "description": "NFT image URL",
+            "example": "https://example.com/nft1.jpg"
+          },
+          "description": {
+            "type": "string",
+            "description": "NFT description",
+            "example": "A beautiful digital artwork"
+          },
+          "category": {
+            "type": "string",
+            "description": "NFT category",
+            "example": "Art"
+          }
+        }
+      },
+      "CartItem": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "integer",
+            "description": "User ID",
+            "example": 100
+          },
+          "nftId": {
+            "type": "integer",
+            "description": "NFT ID",
+            "example": 1
+          },
+          "quantity": {
+            "type": "integer",
+            "description": "Quantity of NFT in cart",
+            "example": 1
+          }
+        }
+      },
+      "CartItemWithNFT": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/CartItem"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "nft": {
+                "$ref": "#/components/schemas/NFT"
+              }
+            }
+          }
+        ]
+      },
+      "Order": {
+        "type": "object",
+        "properties": {
+          "orderId": {
+            "type": "integer",
+            "description": "Unique order identifier",
+            "example": 2000
+          },
+          "buyerId": {
+            "type": "integer",
+            "description": "Buyer's user ID",
+            "example": 100
+          },
+          "nftId": {
+            "type": "integer",
+            "description": "Purchased NFT ID",
+            "example": 1
+          },
+          "nftName": {
+            "type": "string",
+            "description": "NFT name",
+            "example": "Digital Art #1"
+          },
+          "price": {
+            "type": "string",
+            "description": "Purchase price",
+            "example": "0.5 ETH"
+          },
+          "status": {
+            "type": "string",
+            "description": "Order status",
+            "example": "completed"
+          },
+          "flag": {
+            "type": "string",
+            "description": "Optional flag (for CTF purposes)",
+            "example": "CTF_FLAG_HERE"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Order creation date",
+            "example": "2024-01-01T00:00:00.000Z"
+          }
+        }
+      },
+      "RegisterRequest": {
+        "type": "object",
+        "required": ["username", "email", "password", "archiveSignature"],
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Desired username",
+            "example": "john_doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Email address",
+            "example": "john@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "Password",
+            "example": "securePassword123"
+          },
+          "archiveSignature": {
+            "type": "string",
+            "description": "Archive signature",
+            "example": "user_signature_123"
+          }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": ["username", "password"],
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Username",
+            "example": "john_doe"
+          },
+          "password": {
+            "type": "string",
+            "description": "Password",
+            "example": "securePassword123"
+          }
+        }
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "JWT authentication token",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          "userId": {
+            "type": "integer",
+            "description": "User ID",
+            "example": 100
+          },
+          "username": {
+            "type": "string",
+            "description": "Username",
+            "example": "john_doe"
+          },
+          "role": {
+            "type": "string",
+            "description": "User role",
+            "example": "user"
+          }
+        }
+      },
+      "LoginResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/AuthResponse"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "hint": {
+                "type": "string",
+                "description": "Hint for CTF challenge",
+                "example": "Access your orders at /api/orders/{id}. Try looking for high-value transactions."
+              }
+            }
+          }
+        ]
+      },
+      "AddToCartRequest": {
+        "type": "object",
+        "required": ["nftId"],
+        "properties": {
+          "nftId": {
+            "type": "integer",
+            "description": "NFT ID to add to cart",
+            "example": 1
+          }
+        }
+      },
+      "CreateOrderResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Success message",
+            "example": "Order(s) placed successfully"
+          },
+          "orders": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Order"
+            },
+            "description": "Array of created orders"
+          }
+        }
+      },
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Server status",
+            "example": "Authenticated_Archive_Protocol v1.0"
+          },
+          "db": {
+            "type": "string",
+            "description": "Database connection status",
+            "example": "connected"
+          },
+          "setup_required": {
+            "type": "boolean",
+            "description": "Whether setup is required",
+            "example": false
+          },
+          "message": {
+            "type": "string",
+            "description": "Status message",
+            "example": "System operational."
+          }
+        }
+      },
+      "BasicStatus": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Server status",
+            "example": "Authenticated_Archive_Protocol v1.0"
+          }
+        }
+      },
+      "MessageResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Response message",
+            "example": "Item removed from cart"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "description": "Error description",
+            "example": "An error occurred"
+          }
+        }
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "Bad request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "message": "Username or email already exists"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Unauthorized access",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "message": "Authorization token required"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "message": "NFT not found"
+            }
+          }
+        }
+      },
+      "TooManyRequests": {
+        "description": "Rate limit exceeded",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "message": "Too many requests, please try again later."
+            }
+          }
+        }
+      },
+      "ServerError": {
+        "description": "Internal server error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            },
+            "example": {
+              "message": "Server error"
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Health",
+      "description": "Health check endpoints"
+    },
+    {
+      "name": "Authentication",
+      "description": "User authentication and authorization"
+    },
+    {
+      "name": "NFTs",
+      "description": "NFT marketplace operations"
+    },
+    {
+      "name": "Cart",
+      "description": "Shopping cart management"
+    },
+    {
+      "name": "Orders",
+      "description": "Order management"
+    },
+    {
+      "name": "Users",
+      "description": "User profile management"
+    }
+  ]
+}
