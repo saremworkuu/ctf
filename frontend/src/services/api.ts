@@ -1,6 +1,6 @@
 import { ApiNFT, ApiCartItem, ApiOrder, ApiUser, AuthResponse } from '../types';
 
-const BASE_URL = 'http://localhost:5000/api';
+const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -125,6 +125,15 @@ export async function apiGetUser(id: number): Promise<ApiUser> {
     headers: authHeaders(),
   });
   return handleResponse<ApiUser>(res);
+}
+
+export async function apiUpdateProfile(data: { email?: string; archiveSignature?: string }): Promise<{ message: string; user: ApiUser }> {
+  const res = await fetch(`${BASE_URL}/users/me`, {
+    method: 'PUT',
+    headers: authHeaders(),
+    body: JSON.stringify(data),
+  });
+  return handleResponse<{ message: string; user: ApiUser }>(res);
 }
 
 // ─── Health ───────────────────────────────────────────────────────────────────

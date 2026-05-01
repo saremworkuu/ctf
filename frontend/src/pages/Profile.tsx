@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import {
   User as UserIcon,
@@ -9,10 +9,13 @@ import {
   LogOut,
   ChevronRight,
   Package,
-  Users
+  Users,
+  Edit2,
+  Check,
+  X
 } from 'lucide-react';
 import { ApiUser, ApiOrder } from '../types';
-import { apiGetMe, apiGetOrder, apiGetUser } from '../services/api';
+import { apiGetMe, apiGetOrder, apiGetUser, apiUpdateProfile } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Profile() {
@@ -24,16 +27,52 @@ export default function Profile() {
   const [profileLoading, setProfileLoading] = useState(true);
   const [profileError, setProfileError] = useState('');
 
+  // ── Edit Profile State ───────────────────────────────────────────────────
+  const [isEditing, setIsEditing] = useState(false);
+  const [editEmail, setEditEmail] = useState('');
+  const [editSignature, setEditSignature] = useState('');
+  const [updateLoading, setUpdateLoading] = useState(false);
+  const [updateError, setUpdateError] = useState('');
+
   useEffect(() => {
     if (!isAuthenticated) {
       setProfileLoading(false);
       return;
     }
-    apiGetMe()
-      .then(setProfile)
-      .catch((err: any) => setProfileError(err.message || 'Failed to load profile'))
-      .finally(() => setProfileLoading(false));
+    loadProfile();
   }, [isAuthenticated]);
+
+  async function loadProfile() {
+    try {
+      setProfileLoading(true);
+      const data = await apiGetMe();
+      setProfile(data);
+      setEditEmail(data.email);
+      setEditSignature(data.archiveSignature || '');
+    } catch (err: any) {
+      setProfileError(err.message || 'Failed to load profile');
+    } finally {
+      setProfileLoading(false);
+    }
+  }
+
+  async function handleUpdateProfile(e: React.FormEvent) {
+    e.preventDefault();
+    setUpdateLoading(true);
+    setUpdateError('');
+    try {
+      const res = await apiUpdateProfile({
+        email: editEmail,
+        archiveSignature: editSignature
+      });
+      setProfile(res.user);
+      setIsEditing(false);
+    } catch (err: any) {
+      setUpdateError(err.message || 'Failed to update profile');
+    } finally {
+      setUpdateLoading(false);
+    }
+  }
 
   // ── Order lookup ──────────────────────────────────────────────────────────
   const [orderId, setOrderId] = useState('');
@@ -124,7 +163,17 @@ export default function Profile() {
               </div>
             </div>
 
-            <div className="pt-6 border-t border-black/5 space-y-4">
+            <div className="pt-6 border-t border-black/5 space-y-3">
+              <button
+                onClick={() => setIsEditing(!isEditing)}
+                className={`w-full flex items-center justify-between p-4 rounded-2xl transition-all group ${isEditing ? 'bg-bayc-gold text-white' : 'bg-bayc-cream/50 hover:bg-bayc-cream text-bayc-text'}`}
+              >
+                <div className="flex items-center gap-3">
+                  <Edit2 className="w-4 h-4" />
+                  <span className="text-xs font-bold uppercase tracking-widest">{isEditing ? 'Discard Changes' : 'Edit Profile'}</span>
+                </div>
+              </button>
+
               <button
                 onClick={() => logout()}
                 className="w-full flex items-center justify-between p-4 bg-red-50/50 hover:bg-red-50 text-red-500 rounded-2xl transition-colors group"
@@ -150,29 +199,104 @@ export default function Profile() {
           </motion.div>
         </div>
 
-        {/* ── Main: Tools ─────────────────────────────────────────────────── */}
+        {/* ── Main: Content ────────────────────────────────────────────────── */}
         <div className="lg:col-span-8 space-y-8">
-          {/* Detailed Info */}
+          
+          {/* Account Records Card (Dynamic Edit Mode) */}
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white p-8 rounded-3xl border border-black/5 shadow-sm"
+            className="bg-white p-8 rounded-3xl border border-black/5 shadow-sm relative overflow-hidden"
           >
-            <h3 className="text-xs font-bold uppercase tracking-widest text-bayc-text/30 mb-8 flex items-center gap-2">
-              <UserIcon className="w-3 h-3" /> Account Records
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-bayc-text/20 mb-1">Email Address</p>
-                <p className="text-sm font-medium text-bayc-text">{profile?.email || '...'}</p>
-              </div>
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-bayc-text/20 mb-1">Registration Date</p>
-                <p className="text-sm font-medium text-bayc-text">
-                  {profile ? new Date(profile.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '...'}
-                </p>
-              </div>
-            </div>
+            <AnimatePresence mode="wait">
+              {isEditing ? (
+                <motion.form 
+                  key="edit-form"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  onSubmit={handleUpdateProfile}
+                  className="space-y-8"
+                >
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-bayc-gold flex items-center gap-2">
+                    <Edit2 className="w-3 h-3" /> Update Identity
+                  </h3>
+
+                  <div className="space-y-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-bayc-text/40 ml-1">Email Address</label>
+                      <input
+                        type="email"
+                        value={editEmail}
+                        onChange={(e) => setEditEmail(e.target.value)}
+                        className="w-full bg-bayc-cream/50 border-none rounded-2xl p-4 text-sm text-bayc-text outline-none focus:ring-2 focus:ring-bayc-gold/20 transition-all"
+                        placeholder="your@email.com"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-bold uppercase tracking-widest text-bayc-text/40 ml-1">Archive Signature</label>
+                      <input
+                        type="text"
+                        value={editSignature}
+                        onChange={(e) => setEditSignature(e.target.value)}
+                        className="w-full bg-bayc-cream/50 border-none rounded-2xl p-4 text-sm font-mono text-bayc-text outline-none focus:ring-2 focus:ring-bayc-gold/20 transition-all"
+                        placeholder="0x..."
+                      />
+                    </div>
+                  </div>
+
+                  {updateError && (
+                    <div className="flex items-center gap-2 text-red-500 bg-red-50 p-3 rounded-xl border border-red-100">
+                      <AlertCircle className="w-4 h-4" />
+                      <span className="text-[10px] font-bold uppercase">{updateError}</span>
+                    </div>
+                  )}
+
+                  <div className="flex gap-4">
+                    <button
+                      type="submit"
+                      disabled={updateLoading}
+                      className="flex-1 py-4 bg-bayc-text text-white font-bold uppercase tracking-widest text-[10px] hover:bg-bayc-gold transition-all rounded-2xl flex items-center justify-center gap-2"
+                    >
+                      {updateLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
+                      Save Records
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsEditing(false)}
+                      className="px-6 py-4 bg-bayc-cream text-bayc-text font-bold uppercase tracking-widest text-[10px] hover:bg-bayc-text hover:text-white transition-all rounded-2xl"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </motion.form>
+              ) : (
+                <motion.div 
+                  key="view-records"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className="space-y-8"
+                >
+                  <h3 className="text-xs font-bold uppercase tracking-widest text-bayc-text/30 flex items-center gap-2">
+                    <UserIcon className="w-3 h-3" /> Account Records
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-bayc-text/20 mb-1">Email Address</p>
+                      <p className="text-sm font-medium text-bayc-text">{profile?.email || '...'}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-bayc-text/20 mb-1">Registration Date</p>
+                      <p className="text-sm font-medium text-bayc-text">
+                        {profile ? new Date(profile.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '...'}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </motion.div>
 
           {/* Tools Grid */}

@@ -17,6 +17,33 @@ router.get('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
   }
 });
 
+// Update current user profile
+router.put('/me', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const { email, archiveSignature } = req.body;
+    const user = await User.findOne({ userId: req.user?.userId });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    if (email) user.email = email;
+    if (archiveSignature !== undefined) user.archiveSignature = archiveSignature;
+
+    await user.save();
+    res.json({ message: 'Profile updated successfully', user: {
+      userId: user.userId,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+      archiveSignature: user.archiveSignature,
+      createdAt: user.createdAt
+    }});
+  } catch (error: any) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: 'Email already in use' });
+    }
+    res.status(500).json({ message: 'Error updating profile' });
+  }
+});
+
 // Get user profile by ID (Protected) ⚠️ IDOR VULNERABLE
 // This route fails to check if 'userId' matches 'req.user.userId'
 router.get('/:id', authMiddleware, async (req: AuthRequest, res: Response) => {
