@@ -28,6 +28,13 @@ async function startServer() {
   }));
   app.use(express.json());
 
+  // Serve static images from the frontend/public/image folder
+  const imagesPath = path.join(process.cwd(), 'frontend', 'public', 'image');
+  app.use('/image', express.static(imagesPath));
+  
+  // Also support root-level public folder just in case
+  app.use('/image', express.static(path.join(process.cwd(), 'public', 'image')));
+
   // Database Connection
   const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/authenticated_archive';
   
