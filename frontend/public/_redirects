@@ -1,1 +1,3 @@
-/*    /index.html   200
+/api/* https://ctf-hhav.onrender.com/api/:splat 200
+/image/* https://ctf-hhav.onrender.com/image/:splat 200
+/* /index.html 200
