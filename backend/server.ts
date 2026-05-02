@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocument from './swagger.json';
@@ -18,7 +19,7 @@ dotenv.config();
 
 async function startServer() {
   const app = express();
-  const PORT = 5000;
+  const PORT = process.env.PORT || 5000;
 
   // Middleware
   app.use(cors({
@@ -82,7 +83,12 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(process.cwd(), 'dist');
+    // Look for dist in the current directory (if built inside backend) or in ../frontend/dist
+    let distPath = path.join(process.cwd(), 'dist');
+    if (!fs.existsSync(distPath)) {
+      distPath = path.join(process.cwd(), '..', 'frontend', 'dist');
+    }
+    
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));

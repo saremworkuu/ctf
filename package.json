@@ -1,0 +1,11 @@
+{
+  "name": "archive-protocol-fullstack",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "build": "cd frontend && npm run build",
+    "start": "cd backend && npx tsx server.ts",
+    "seed": "cd backend && npx tsx seed/seed.ts"
+  }
+}
