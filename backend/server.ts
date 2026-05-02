@@ -75,21 +75,6 @@ async function startServer() {
       appType: "spa",
     });
     app.use(vite.middlewares);
-  } else {
-    let distPath = path.join(process.cwd(), 'dist');
-    if (!fs.existsSync(distPath)) {
-      distPath = path.join(process.cwd(), '..', 'frontend', 'dist');
-    }
-    app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
-    });
-  }
-
-  if (process.env.NODE_ENV !== 'production' || process.env.RUN_STANDALONE === 'true') {
-    app.listen(PORT, "0.0.0.0", () => {
-      console.log(`🚀 Server running on http://localhost:${PORT}`);
-    });
   }
 }
 
