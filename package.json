@@ -7,7 +7,7 @@
     "backend"
   ],
   "scripts": {
-    "build": "npm run build --workspace=frontend",
+    "build": "cd frontend && npm run build && cp -r dist ../dist",
     "start": "npm start --workspace=backend",
     "seed": "npm run seed --workspace=backend"
   },
