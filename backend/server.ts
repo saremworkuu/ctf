@@ -23,8 +23,8 @@ async function startServer() {
 
   // Middleware
   app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:5173'], // Support both for flexibility
-    methods: ['GET', 'POST', 'DELETE'],
+    origin: ['http://localhost:3000', 'http://localhost:5173', 'https://ctf-hhav.onrender.com'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Authorization', 'Content-Type']
   }));
   app.use(express.json());
@@ -32,13 +32,13 @@ async function startServer() {
   // Serve static images from the frontend/public/image folder
   const imagesPath = path.join(process.cwd(), 'frontend', 'public', 'image');
   app.use('/image', express.static(imagesPath));
-  
+
   // Also support root-level public folder just in case
   app.use('/image', express.static(path.join(process.cwd(), 'public', 'image')));
 
   // Database Connection
   const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/authenticated_archive';
-  
+
   try {
     await mongoose.connect(MONGODB_URI);
     console.log('📦 Connected to MongoDB');
@@ -50,8 +50,8 @@ async function startServer() {
   // API Routes
   app.get('/api/health', (req, res) => {
     const isDbConnected = mongoose.connection.readyState === 1;
-    res.json({ 
-      status: "Authenticated_Archive_Protocol v1.0", 
+    res.json({
+      status: "Authenticated_Archive_Protocol v1.0",
       db: isDbConnected ? 'connected' : 'disconnected',
       setup_required: !process.env.MONGODB_URI || !process.env.JWT_SECRET,
       message: isDbConnected ? "System operational." : "Critical: Database connection required. Ensure MONGODB_URI is set in environment secrets."
@@ -88,7 +88,7 @@ async function startServer() {
     if (!fs.existsSync(distPath)) {
       distPath = path.join(process.cwd(), '..', 'frontend', 'dist');
     }
-    
+
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
