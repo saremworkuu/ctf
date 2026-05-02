@@ -2,10 +2,13 @@
   "name": "archive-protocol-fullstack",
   "private": true,
   "type": "module",
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "scripts": {
-    "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install",
-    "build": "cd frontend && npm run build",
-    "start": "cd backend && npx tsx server.ts",
-    "seed": "cd backend && npx tsx seed/seed.ts"
+    "build": "npm run build --workspace=frontend",
+    "start": "npm start --workspace=backend",
+    "seed": "npm run seed --workspace=backend"
   }
 }
