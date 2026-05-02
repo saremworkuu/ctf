@@ -63,7 +63,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // ── Initialization ──────────────────────────────────────────────────────────
 async function startServer() {
-  const PORT = process.env.PORT || 5000;
+  const PORT = Number(process.env.PORT || 5000);
   const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/authenticated_archive';
   
   try {
@@ -73,17 +73,26 @@ async function startServer() {
     console.warn('⚠️ MongoDB connection failed.');
   }
 
-  // Vite / Production Static
-  if (process.env.NODE_ENV !== "production") {
+  // Only mount Vite middleware when explicitly requested for local fullstack dev.
+  // API deployments (Render) should not boot an internal Vite server.
+  const enableViteMiddleware = process.env.ENABLE_VITE_DEV_SERVER === 'true';
+  if (enableViteMiddleware && process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
     });
     app.use(vite.middlewares);
   }
+
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Server listening on port ${PORT}`);
+  });
 }
 
-startServer();
+startServer().catch((err) => {
+  console.error('❌ Failed to start server:', err);
+  process.exit(1);
+});
 
 export default app;
 export { app };
