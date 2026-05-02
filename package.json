@@ -1,0 +1,8 @@
+{
+  "name": "archive-workspace",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ]
+}
