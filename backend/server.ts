@@ -19,23 +19,46 @@ dotenv.config();
 
 const app = express();
 
+// ── Middleware ──────────────────────────────────────────────────────────────
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://localhost:5173', 'https://ctf-hhav.onrender.com'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Authorization', 'Content-Type']
+}));
+app.use(express.json());
+
+// ── Static Assets ───────────────────────────────────────────────────────────
+const imagesPath = path.join(process.cwd(), 'frontend', 'public', 'image');
+const rootImagesPath = path.join(process.cwd(), 'public', 'image');
+app.use('/image', express.static(imagesPath));
+app.use('/image', express.static(rootImagesPath));
+
+// ── API Routes (Synchronous) ────────────────────────────────────────────────
+const registerRoutes = (prefix: string) => {
+  app.use(`${prefix}/auth`, authRoutes);
+  app.use(`${prefix}/nfts`, nftRoutes);
+  app.use(`${prefix}/cart`, cartRoutes);
+  app.use(`${prefix}/orders`, orderRoutes);
+  app.use(`${prefix}/users`, userRoutes);
+};
+
+// Register for both /api (local) and root (Vercel function)
+registerRoutes('/api');
+registerRoutes('');
+
+app.get('/api/health', (req, res) => {
+  const isDbConnected = mongoose.connection.readyState === 1;
+  res.json({
+    status: "Authenticated_Archive_Protocol v1.0",
+    db: isDbConnected ? 'connected' : 'disconnected'
+  });
+});
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+// ── Initialization ──────────────────────────────────────────────────────────
 async function startServer() {
   const PORT = process.env.PORT || 5000;
-
-  // Middleware
-  app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:5173', 'https://ctf-hhav.onrender.com'],
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Authorization', 'Content-Type']
-  }));
-  app.use(express.json());
-
-  // Serve static images
-  const imagesPath = path.join(process.cwd(), 'frontend', 'public', 'image');
-  app.use('/image', express.static(imagesPath));
-  app.use('/image', express.static(path.join(process.cwd(), 'public', 'image')));
-
-  // Database Connection
   const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/authenticated_archive';
   
   try {
@@ -45,25 +68,7 @@ async function startServer() {
     console.warn('⚠️ MongoDB connection failed.');
   }
 
-  // API Routes
-  app.get('/api/health', (req, res) => {
-    const isDbConnected = mongoose.connection.readyState === 1;
-    res.json({
-      status: "Authenticated_Archive_Protocol v1.0",
-      db: isDbConnected ? 'connected' : 'disconnected'
-    });
-  });
-
-  app.use('/api/auth', authRoutes);
-  app.use('/api/nfts', nftRoutes);
-  app.use('/api/cart', cartRoutes);
-  app.use('/api/orders', orderRoutes);
-  app.use('/api/users', userRoutes);
-
-  // Swagger
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-  // Vite / Static
+  // Vite / Production Static
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },
@@ -81,7 +86,6 @@ async function startServer() {
     });
   }
 
-  // Only listen if not in a serverless environment
   if (process.env.NODE_ENV !== 'production' || process.env.RUN_STANDALONE === 'true') {
     app.listen(PORT, "0.0.0.0", () => {
       console.log(`🚀 Server running on http://localhost:${PORT}`);
