@@ -2,9 +2,11 @@ import { ApiNFT, ApiCartItem, ApiOrder, ApiUser, AuthResponse } from '../types';
 
 // Use relative path in production (Vercel) to avoid cross-domain issues
 // Use localhost:5000 in development
-const BASE_URL = import.meta.env.PROD 
-  ? '/api' 
-  : (import.meta.env.VITE_API_URL || 'http://localhost:5000/api');
+// Prefer an explicit VITE_API_URL when provided (works in dev and production builds).
+// Fallback to same-origin '/api' when built for PROD without VITE_API_URL,
+// or localhost during development.
+const BASE_URL = import.meta.env.VITE_API_URL
+  || (import.meta.env.PROD ? '/api' : 'http://localhost:5000/api');
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
