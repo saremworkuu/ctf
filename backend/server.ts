@@ -17,8 +17,9 @@ import userRoutes from './routes/users.ts';
 
 dotenv.config();
 
+const app = express();
+
 async function startServer() {
-  const app = express();
   const PORT = process.env.PORT || 5000;
 
   // Middleware
@@ -29,22 +30,19 @@ async function startServer() {
   }));
   app.use(express.json());
 
-  // Serve static images from the frontend/public/image folder
+  // Serve static images
   const imagesPath = path.join(process.cwd(), 'frontend', 'public', 'image');
   app.use('/image', express.static(imagesPath));
-
-  // Also support root-level public folder just in case
   app.use('/image', express.static(path.join(process.cwd(), 'public', 'image')));
 
   // Database Connection
   const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/authenticated_archive';
-
+  
   try {
     await mongoose.connect(MONGODB_URI);
     console.log('📦 Connected to MongoDB');
   } catch (err) {
-    console.warn('⚠️ MongoDB connection failed. Make sure a MongoDB instance is running.');
-    console.warn('⚠️ Error:', err instanceof Error ? err.message : String(err));
+    console.warn('⚠️ MongoDB connection failed.');
   }
 
   // API Routes
@@ -52,9 +50,7 @@ async function startServer() {
     const isDbConnected = mongoose.connection.readyState === 1;
     res.json({
       status: "Authenticated_Archive_Protocol v1.0",
-      db: isDbConnected ? 'connected' : 'disconnected',
-      setup_required: !process.env.MONGODB_URI || !process.env.JWT_SECRET,
-      message: isDbConnected ? "System operational." : "Critical: Database connection required. Ensure MONGODB_URI is set in environment secrets."
+      db: isDbConnected ? 'connected' : 'disconnected'
     });
   });
 
@@ -64,18 +60,10 @@ async function startServer() {
   app.use('/api/orders', orderRoutes);
   app.use('/api/users', userRoutes);
 
-  // Swagger Documentation
-  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, {
-    customCss: '.swagger-ui .topbar { display: none }',
-    customSiteTitle: "Authenticated Archive Protocol API Documentation"
-  }));
+  // Swagger
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-  // Health Check / Root
-  app.get('/api', (req, res) => {
-    res.json({ status: "Authenticated_Archive_Protocol v1.0" });
-  });
-
-  // Vite middleware for development
+  // Vite / Static
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },
@@ -83,23 +71,25 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    // Look for dist in the current directory (if built inside backend) or in ../frontend/dist
     let distPath = path.join(process.cwd(), 'dist');
     if (!fs.existsSync(distPath)) {
       distPath = path.join(process.cwd(), '..', 'frontend', 'dist');
     }
-
     app.use(express.static(distPath));
     app.get('*', (req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
 
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`📡 Health Check: http://localhost:${PORT}/api/health`);
-    console.log(`📚 API Documentation: http://localhost:${PORT}/api-docs`);
-  });
+  // Only listen if not in a serverless environment
+  if (process.env.NODE_ENV !== 'production' || process.env.RUN_STANDALONE === 'true') {
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`🚀 Server running on http://localhost:${PORT}`);
+    });
+  }
 }
 
 startServer();
+
+export default app;
+export { app };
